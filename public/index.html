@@ -10,12 +10,12 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap"
         rel="stylesheet">
-    <title>CSS Gerador Com IA</title>
+    <title>CSS Gerador</title>
     <link rel="shortcut icon" href="./img/css.png" type="image/png">
 </head>
 
 <body>
-    <h1>CSS Gerador <span>com IA</span> ⚡️</h1>
+    <h1>CSS <span>Gerador</span> ⚡️</h1>
     <p>Descreva o que você imagina e veja a mágica acontecer!</p>
 
     <textarea rows="3" class="caixa-texto" placeholder="Ex: Bola azul pingando"></textarea>
@@ -27,12 +27,24 @@
     <div class="resultado">
 
         <div class="coluna">
-            <h2>Código</h2>
-            <pre class="bloco-codigo"></pre>
+            <div class="coluna-cabecalho">
+                <h2>Código</h2>
+                <button type="button" class="botao-copiar" id="botao-copiar" title="Copiar código para a área de transferência">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span class="texto-copiar">Copiar</span>
+                </button>
+            </div>
+            <pre class="bloco-codigo" id="bloco-codigo"></pre>
         </div>
 
         <div class="coluna">
-            <h2>Preview</h2>
+            <div class="coluna-cabecalho">
+                <h2>Preview</h2>
+                <span class="badge-preview">Em tempo real</span>
+            </div>
             <iframe class="resultado-codigo"></iframe>
         </div>
 

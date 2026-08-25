@@ -1,12 +1,63 @@
 let botao = document.querySelector(".botao-gerar")
 let mensagemErro = document.querySelector(".mensagem-erro")
 let caixaTexto = document.querySelector(".caixa-texto")
+let botaoCopiar = document.querySelector(".botao-copiar")
+let blocoCodigo = document.querySelector(".bloco-codigo")
+let resultadoCodigo = document.querySelector(".resultado-codigo")
+let divResultado = document.querySelector(".resultado")
+
+async function copiarCodigo() {
+    let codigo = blocoCodigo.textContent.trim()
+    if (!codigo || codigo.startsWith("/* ⚡") || codigo.startsWith("/* Erro") || codigo.startsWith("/* Falha")) {
+        return
+    }
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(codigo)
+        } else {
+            // Fallback for environments where navigator.clipboard might be restricted
+            const tempTextarea = document.createElement("textarea")
+            tempTextarea.value = codigo
+            tempTextarea.style.position = "fixed"
+            tempTextarea.style.left = "-9999px"
+            tempTextarea.style.top = "0"
+            document.body.appendChild(tempTextarea)
+            tempTextarea.focus()
+            tempTextarea.select()
+            document.execCommand("copy")
+            document.body.removeChild(tempTextarea)
+        }
+
+        botaoCopiar.classList.add("copiado")
+        botaoCopiar.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span class="texto-copiar">Copiado!</span>
+        `
+
+        setTimeout(() => {
+            botaoCopiar.classList.remove("copiado")
+            botaoCopiar.innerHTML = `
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span class="texto-copiar">Copiar</span>
+            `
+        }, 2000)
+    } catch (err) {
+        console.error("Erro ao copiar código:", err)
+    }
+}
+
+if (botaoCopiar) {
+    botaoCopiar.addEventListener("click", copiarCodigo)
+}
 
 async function gerarCodigo() {
     let textoUsuario = caixaTexto.value.trim()
-    let blocoCodigo = document.querySelector(".bloco-codigo")
-    let resultadoCodigo = document.querySelector(".resultado-codigo")
-    let divResultado = document.querySelector(".resultado")
 
     if (textoUsuario === "") {
         mensagemErro.classList.add("ativo")
@@ -20,7 +71,7 @@ async function gerarCodigo() {
     botao.style.opacity = "0.7"
     botao.style.cursor = "not-allowed"
 
-    blocoCodigo.textContent = "/* ⚡ Gerando código com IA em tempo real...\n   Aguarde um instante... */"
+    blocoCodigo.textContent = "/* ⚡ Gerando código em tempo real...\n   Aguarde um instante... */"
     resultadoCodigo.srcdoc = `<style>
         body {
             font-family: 'Inter', system-ui, sans-serif;
