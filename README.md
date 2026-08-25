@@ -1,14 +1,12 @@
 # ⚡ AI CSS Generator
 
-O **AI CSS Generator** é uma ferramenta inteligente que transforma descrições em linguagem natural (ex: "um botão neon que pulsa") em código HTML e CSS funcional. O projeto utiliza a API da **Groq** com o modelo **Llama 3** para processar os pedidos e gerar os componentes instantaneamente.
-
-🔗 **Acesse o projeto online:** [https://ai-css-generator.onrender.com/](https://ai-css-generator.onrender.com/)
+O **AI CSS Generator** é uma ferramenta inteligente que transforma descrições em linguagem natural (ex: "um botão neon que pulsa") em código HTML e CSS funcional. O projeto utiliza a API do **Google Gemini** com o modelo **Gemini 3.7 Flash** (versão gratuita) para processar os pedidos e gerar os componentes instantaneamente.
 
 ---
 
 ## ✨ Funcionalidades
 
-- **Geração por IA:** Descreva o que você imagina e a IA gera o código.
+- **Geração por IA:** Descreva o que você imagina e o Gemini gera o código HTML/CSS pronto.
 - **Preview em Tempo Real:** Veja o componente renderizado imediatamente em um Iframe.
 - **Visualizador de Código:** Código limpo e formatado em um bloco com estilo de editor.
 - **Interface Dark Mode:** Design moderno e responsivo focado em produtividade.
@@ -20,7 +18,7 @@ O **AI CSS Generator** é uma ferramenta inteligente que transforma descrições
 
 - **Front-end:** HTML5, CSS3 (Glassmorphism), JavaScript (Vanilla).
 - **Back-end:** Node.js, Express.
-- **IA:** Groq API (Modelo: `llama-3.3-70b-versatile`).
+- **IA:** Google Gen AI SDK (`@google/genai`, Modelo: `gemini-3.7-flash`).
 - **Segurança:** Dotenv e CORS.
 
 ---

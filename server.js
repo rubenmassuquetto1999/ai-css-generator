@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
 const path = require('path');
 const { GoogleGenAI } = require('@google/genai');
 
@@ -10,76 +9,79 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const candidateModels = [
+    'gemini-flash-latest',
+    'gemini-3.1-flash-lite',
+    'gemini-3.7-flash'
+];
+
+async function generateWithFallback(ai, prompt) {
+    let lastError = null;
+
+    for (const model of candidateModels) {
+        try {
+            console.log(`Tentando gerar com o modelo ${model}...`);
+            const response = await ai.models.generateContent({
+                model: model,
+                contents: prompt,
+                config: {
+                    systemInstruction: "Você é um gerador de código HTML/CSS especialista. Responda APENAS com o código HTML e CSS completo e funcional (incluindo tags <style> se necessário). Não inclua formatação markdown com crases (sem ```html ou ```css), sem introduções, sem notas ou explicações.",
+                    temperature: 0.3,
+                    maxOutputTokens: 2048
+                }
+            });
+
+            if (response && response.text) {
+                console.log(`Sucesso com o modelo: ${model}`);
+                return response.text;
+            }
+        } catch (err) {
+            lastError = err;
+            console.warn(`Erro no modelo ${model}:`, err.message || err);
+            // Continues to the next candidate model automatically
+        }
+    }
+
+    throw lastError || new Error("Não foi possível gerar o código após tentar os modelos disponíveis.");
+}
+
 app.post('/gerar-codigo', async (req, res) => {
     const prompt = req.body?.prompt;
     console.log("Recebi um pedido para:", prompt);
 
-    if (!prompt || typeof prompt !== 'string') {
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
         return res.status(400).json({ error: "Prompt inválido ou não fornecido." });
     }
 
-    try {
-        // Priority 1: Use Gemini if GEMINI_API_KEY is configured
-        if (process.env.GEMINI_API_KEY) {
-            const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-            const geminiResponse = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: {
-                    systemInstruction: "Você é um gerador de código. Responda APENAS com código HTML/CSS funcional puro. Sem markdown (não use ```html ou ```css), sem explicações extras."
-                }
-            });
-
-            const generatedCode = geminiResponse.text || '';
-            console.log("IA (Gemini) respondeu com sucesso!");
-            return res.json({
-                choices: [
-                    {
-                        message: {
-                            content: generatedCode
-                        }
-                    }
-                ]
-            });
-        }
-
-        // Priority 2: Use Groq if GROQ_API_KEY is configured
-        if (process.env.GROQ_API_KEY) {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        {
-                            role: "system",
-                            content: "Você é um gerador de código. Responda APENAS com código HTML/CSS puro. Sem markdown, sem explicações."
-                        },
-                        { role: "user", content: prompt }
-                    ]
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.error) {
-                console.error("Erro da Groq:", data.error);
-                return res.status(400).json(data);
-            }
-
-            console.log("IA (Groq) respondeu com sucesso!");
-            return res.json(data);
-        }
-
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
         return res.status(500).json({
-            error: "Nenhuma chave de API configurada. Por favor, configure GEMINI_API_KEY ou GROQ_API_KEY nas variáveis de ambiente."
+            error: "A chave GEMINI_API_KEY não está configurada nas variáveis de ambiente."
+        });
+    }
+
+    try {
+        const ai = new GoogleGenAI({ apiKey });
+        const rawText = await generateWithFallback(ai, prompt);
+
+        let generatedCode = rawText || '';
+        generatedCode = generatedCode.replace(/^```(html|css)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+        console.log("IA (Gemini) respondeu com sucesso!");
+        return res.json({
+            choices: [
+                {
+                    message: {
+                        content: generatedCode
+                    }
+                }
+            ]
         });
     } catch (error) {
-        console.error("Erro no Servidor:", error);
-        res.status(500).json({ error: error.message || "Falha na conexão com o serviço de IA." });
+        console.error("Erro ao gerar com Gemini:", error);
+        return res.status(500).json({
+            error: error.message || "O serviço de IA está com alta demanda no momento. Por favor, tente novamente em alguns instantes."
+        });
     }
 });
 

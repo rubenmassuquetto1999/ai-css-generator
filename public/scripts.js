@@ -15,7 +15,39 @@ async function gerarCodigo() {
 
     mensagemErro.classList.remove("ativo")
     divResultado.classList.add("ativo")
-    botao.textContent = "Gerando... ⏳"
+    botao.textContent = "Gerando código... ⚡️"
+    botao.disabled = true
+    botao.style.opacity = "0.7"
+    botao.style.cursor = "not-allowed"
+
+    blocoCodigo.textContent = "/* ⚡ Gerando código com IA em tempo real...\n   Aguarde um instante... */"
+    resultadoCodigo.srcdoc = `<style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #ffffff;
+            color: #71717a;
+        }
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e4e4e7;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <div class="spinner"></div>
+    <p style="font-size: 14px; font-weight: 500;">Construindo preview...</p>`
 
     try {
         let resposta = await fetch("/gerar-codigo", {
@@ -50,6 +82,9 @@ async function gerarCodigo() {
         resultadoCodigo.srcdoc = `<style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;color:#ef4444;background:#18181b;}</style><p>Falha na conexão com o servidor.</p>`;
     } finally {
         botao.textContent = "Gerar Código ⚡️"
+        botao.disabled = false
+        botao.style.opacity = "1"
+        botao.style.cursor = "pointer"
     }
 }
 
