@@ -1,0 +1,8 @@
+{
+  "name": "AI CSS Generator",
+  "description": "Transform natural language descriptions into functional HTML and CSS with instant live preview.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

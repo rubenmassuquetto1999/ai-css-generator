@@ -5,9 +5,11 @@
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
-        "dev": "node --watch server.js"
+        "dev": "node server.js",
+        "build": "echo 'Build complete'"
     },
     "dependencies": {
+        "@google/genai": "^2.18.0",
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
